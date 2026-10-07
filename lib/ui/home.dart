@@ -10,6 +10,7 @@ import 'detalhes.dart';
 
 class Home extends StatefulWidget {
   final VoidCallback onToggleTheme;
+
   const Home({super.key, required this.onToggleTheme});
 
   @override
@@ -18,6 +19,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final StorageService storage = StorageService();
+
   List<Caminhada> caminhadas = [];
 
   @override
@@ -33,84 +35,119 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    const azul = Color(0xFF2563EB);
+    const roxo = Color(0xFF7C3AED);
+    const fundo = Color(0xFFF8FAFC);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Caminhadas'),
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.primary,
+        backgroundColor: azul,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
+
       drawer: DrawerMenu(onToggleTheme: widget.onToggleTheme),
-      backgroundColor: colorScheme.surface,
+
+      backgroundColor: fundo,
+
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          itemCount: caminhadas.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemBuilder: (context, index) {
-            final c = caminhadas[index];
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DetalhesScreen(caminhada: c),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.outline),
+        child: caminhadas.isEmpty
+            ? const Center(
+                child: Text(
+                  'Nenhuma caminhada cadastrada.',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    c.fotoPath == null
-                        ? Icon(
-                            Icons.photo,
-                            size: 60,
-                            color: colorScheme.primary,
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              File(c.fotoPath!),
-                              height: 80,
-                              width: 80,
-                              fit: BoxFit.cover,
-                            ),
+              )
+            : GridView.builder(
+                itemCount: caminhadas.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemBuilder: (context, index) {
+                  final c = caminhadas[index];
+
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    splashColor: azul.withValues(alpha: 0.15),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetalhesScreen(caminhada: c),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color:azul.withValues(alpha: 0.2)),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 3),
                           ),
-                    const SizedBox(height: 8),
-                    Text(
-                      c.titulo,
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                        fontWeight: FontWeight.w500,
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            c.fotoPath == null
+                                ? const Icon(Icons.photo, size: 65, color: azul)
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      File(c.fotoPath!),
+                                      height: 90,
+                                      width: 90,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+
+                            const SizedBox(height: 12),
+
+                            Text(
+                              c.titulo,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: roxo,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            Text(
+                              '${c.distancia.toStringAsFixed(0)} m',
+                              style: const TextStyle(color: azul, fontSize: 13),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
+
       floatingActionButton: FloatingActionButton(
-        backgroundColor: colorScheme.primary,
+        backgroundColor: roxo,
+        foregroundColor: Colors.white,
         child: const Icon(Icons.add),
         onPressed: () async {
           await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const NovaCaminhadaScreen()),
           );
+
           carregar();
         },
       ),

@@ -17,7 +17,7 @@ class NovaCaminhadaScreen extends StatefulWidget {
 }
 
 class _NovaCaminhadaScreenState extends State<NovaCaminhadaScreen> {
-  LatLng origem = LatLng(-22.713, -46.818);
+  final LatLng origem = LatLng(-22.713, -46.818);
   LatLng? destino;
 
   double distancia = 0;
@@ -28,6 +28,10 @@ class _NovaCaminhadaScreenState extends State<NovaCaminhadaScreen> {
 
   final StorageService storage = StorageService();
   final LocationService location = LocationService();
+
+  static const azul = Color(0xFF2563EB);
+  static const roxo = Color(0xFF7C3AED);
+  static const fundo = Color(0xFFF8FAFC);
 
   void calcular() {
     if (destino == null) return;
@@ -42,7 +46,9 @@ class _NovaCaminhadaScreenState extends State<NovaCaminhadaScreen> {
   Future<void> tirarFoto() async {
     final picker = ImagePicker();
 
-    final foto = await picker.pickImage(source: ImageSource.camera);
+    final foto = await picker.pickImage(
+      source: ImageSource.camera,
+    );
 
     if (foto != null && mounted) {
       setState(() {
@@ -57,17 +63,41 @@ class _NovaCaminhadaScreenState extends State<NovaCaminhadaScreen> {
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text("Título da caminhada"),
-        content: TextField(controller: tituloController),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          "Título da caminhada",
+          style: TextStyle(
+            color: roxo,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: TextField(
+          controller: tituloController,
+          decoration: InputDecoration(
+            hintText: "Digite o título",
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: azul),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
+            child: const Text(
+              "Cancelar",
+              style: TextStyle(color: azul),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: roxo,
               foregroundColor: Colors.white,
             ),
             onPressed: () async {
@@ -98,108 +128,149 @@ class _NovaCaminhadaScreenState extends State<NovaCaminhadaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
+      backgroundColor: fundo,
+
       appBar: AppBar(
         title: const Text("Nova Caminhada"),
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.primary,
+        backgroundColor: azul,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
-      backgroundColor: colorScheme.surface,
+
       body: Column(
         children: [
           Expanded(
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter: origem,
-                initialZoom: 15,
-                onTap: (tapPosition, latLng) {
-                  destino = latLng;
-                  calcular();
-                },
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(20),
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.caminhadas',
+              child: FlutterMap(
+                options: MapOptions(
+                  initialCenter: origem,
+                  initialZoom: 15,
+                  onTap: (tapPosition, latLng) {
+                    destino = latLng;
+                    calcular();
+                  },
                 ),
-                if (destino != null)
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName:
+                        'com.example.caminhadas',
+                  ),
+
+                  if (destino != null)
+                    PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: [origem, destino!],
+                          color: roxo,
+                          strokeWidth: 5,
+                        ),
+                      ],
+                    ),
+
                   MarkerLayer(
                     markers: [
                       Marker(
                         point: origem,
                         width: 40,
                         height: 40,
-                        child: Icon(
+                        child: const Icon(
                           Icons.location_on,
-                          color: colorScheme.primary,
+                          color: azul,
                           size: 40,
                         ),
                       ),
-                      Marker(
-                        point: destino!,
-                        width: 40,
-                        height: 40,
-                        child: Icon(
-                          Icons.flag,
-                          color: colorScheme.secondary,
-                          size: 40,
+
+                      if (destino != null)
+                        Marker(
+                          point: destino!,
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.flag,
+                            color: roxo,
+                            size: 40,
+                          ),
                         ),
-                      ),
                     ],
                   ),
-              ],
+                ],
+              ),
             ),
           ),
+
           if (destino != null)
-            Padding(
+            Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
               child: Column(
                 children: [
                   Text(
-                    "Vai percorrer ${distancia.toStringAsFixed(0)} m, "
-                    "queimando cerca de "
-                    "${calorias.toStringAsFixed(0)} calorias "
-                    "em aproximadamente "
-                    "${tempo.toStringAsFixed(0)} min.",
-                    style: TextStyle(color: colorScheme.onSurface),
+                    "Vai percorrer ${distancia.toStringAsFixed(0)} m,\nqueimando cerca de ${calorias.toStringAsFixed(0)} calorias\nem aproximadamente ${tempo.toStringAsFixed(0)} min.",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: roxo,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+
+                  const SizedBox(height: 16),
+
                   if (imagem != null)
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       child: Image.file(
                         imagem!,
-                        height: 120,
-                        width: 120,
+                        height: 140,
+                        width: 140,
                         fit: BoxFit.cover,
                       ),
                     ),
-                  const SizedBox(height: 10),
+
+                  if (imagem != null)
+                    const SizedBox(height: 16),
+
                   ElevatedButton.icon(
                     onPressed: tirarFoto,
-                    icon: const Icon(Icons.camera_alt, color: Colors.white),
-                    label: const Text(
-                      "Tirar Foto",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text("Tirar Foto"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
+                      backgroundColor: azul,
                       foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(12),
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 10),
-                  ElevatedButton(
+
+                  ElevatedButton.icon(
                     onPressed: salvar,
+                    icon: const Icon(Icons.save),
+                    label: const Text("Salvar Caminhada"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
+                      backgroundColor: roxo,
                       foregroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      "Salvar Caminhada",
-                      style: TextStyle(color: Colors.white),
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ],

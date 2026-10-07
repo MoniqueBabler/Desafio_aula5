@@ -9,25 +9,31 @@ import '../models/caminhada.dart';
 class DetalhesScreen extends StatelessWidget {
   final Caminhada caminhada;
 
-  const DetalhesScreen({super.key, required this.caminhada});
+  const DetalhesScreen({
+    super.key,
+    required this.caminhada,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const rosa = Colors.pink;
+    const azul = Color(0xFF2563EB);
+    const roxo = Color(0xFF7C3AED);
+    const fundo = Color(0xFFF8FAFC);
 
     // Ponto inicial
     final origem = LatLng(-22.713, -46.818);
 
-    // Ponto final de exemplo
+    // Ponto final
     final destino = LatLng(-22.710, -46.812);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(caminhada.titulo),
-        backgroundColor: rosa,
+        backgroundColor: azul,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: fundo,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -36,70 +42,136 @@ class DetalhesScreen extends StatelessWidget {
             children: [
               if (caminhada.fotoPath != null)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   child: Image.file(
                     File(caminhada.fotoPath!),
-                    height: 200,
+                    height: 220,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
                 ),
 
-              const SizedBox(height: 16),
-
-              Text(
-                "Distância: ${caminhada.distancia.toStringAsFixed(0)} m",
-                style: const TextStyle(color: rosa, fontSize: 16),
-              ),
-
-              Text(
-                "Calorias: ${caminhada.calorias.toStringAsFixed(0)} kcal",
-                style: const TextStyle(color: rosa, fontSize: 16),
-              ),
-
-              Text(
-                "Tempo: ${caminhada.tempo.toStringAsFixed(0)} min",
-                style: const TextStyle(color: rosa, fontSize: 16),
-              ),
-
-              Text(
-                "Data: ${caminhada.data.toLocal().toString().substring(0, 16)}",
-                style: const TextStyle(color: rosa, fontSize: 16),
-              ),
-
               const SizedBox(height: 20),
+
+              Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.straighten, color: azul),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Distância: ${caminhada.distancia.toStringAsFixed(0)} m",
+                            style: const TextStyle(
+                              color: azul,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          const Icon(Icons.local_fire_department,
+                              color: roxo),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Calorias: ${caminhada.calorias.toStringAsFixed(0)} kcal",
+                            style: const TextStyle(
+                              color: roxo,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          const Icon(Icons.timer, color: azul),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Tempo: ${caminhada.tempo.toStringAsFixed(0)} min",
+                            style: const TextStyle(
+                              color: azul,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today, color: roxo),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Data: ${caminhada.data.toLocal().toString().substring(0, 16)}",
+                              style: const TextStyle(
+                                color: roxo,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
 
               const Text(
                 "Percurso",
                 style: TextStyle(
-                  color: rosa,
-                  fontSize: 20,
+                  color: roxo,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 child: SizedBox(
                   height: 350,
                   width: double.infinity,
                   child: FlutterMap(
-                    options: MapOptions(initialCenter: origem, initialZoom: 14),
+                    options: MapOptions(
+                      initialCenter: origem,
+                      initialZoom: 14,
+                    ),
                     children: [
                       TileLayer(
                         urlTemplate:
                             'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.example.caminhadas',
+                        userAgentPackageName:
+                            'com.example.caminhadas',
                       ),
 
                       PolylineLayer(
                         polylines: [
                           Polyline(
                             points: [origem, destino],
-                            strokeWidth: 5,
-                            color: Colors.pink,
+                            strokeWidth: 6,
+                            color: roxo,
                           ),
                         ],
                       ),
@@ -108,22 +180,22 @@ class DetalhesScreen extends StatelessWidget {
                         markers: [
                           Marker(
                             point: origem,
-                            width: 40,
-                            height: 40,
+                            width: 50,
+                            height: 50,
                             child: const Icon(
                               Icons.location_on,
-                              color: Colors.pinkAccent,
-                              size: 40,
+                              color: azul,
+                              size: 45,
                             ),
                           ),
 
                           Marker(
                             point: destino,
-                            width: 40,
-                            height: 40,
+                            width: 50,
+                            height: 50,
                             child: const Icon(
                               Icons.flag,
-                              color: Colors.pink,
+                              color: roxo,
                               size: 40,
                             ),
                           ),
